@@ -187,16 +187,19 @@ class mqtt(transport_base):
             #self.write_variable(entry, value=str(msg.payload.decode('utf-8')))
 
     def init_bridge(self, from_transport : transport_base):
-
+        self._log.info("Init bridge")
         if from_transport.write_enabled:
+            self._log.info("From_transport writing enabled")
             self.__write_topics = {}
             #subscribe to write topics
             for entry in from_transport.protocolSettings.get_registry_map(Registry_Type.HOLDING):
+                self._log.info(f"IN_MAP: {entry}")
                 if entry.write_mode == WriteMode.WRITE or entry.write_mode == WriteMode.WRITEONLY:
                     #__write_topics
                     topic : str = self.base_topic + "/"+ from_transport.device_identifier + "/write/" + entry.variable_name.lower().replace(" ", "_")
                     self.__write_topics[topic] = entry
                     self.client.subscribe(topic)
+                    self._log.info(f"Subscribed to {topic} for writing")
 
         if self.discovery_enabled:
             self.mqtt_discovery(from_transport)
